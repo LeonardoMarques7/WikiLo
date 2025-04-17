@@ -12,6 +12,16 @@ A plataforma permitirá que usuários cadastrados — sejam fãs, artistas ou en
 
 ---
 
+## 🌟 O que a plataforma oferecerá:
+
+- Criação e personalização de páginas wiki por usuários autenticados
+- Cada wiki com **estilo diferenciado** e visual próprio do artista
+- Curadoria de conteúdo: edição pública desativada, somente admins podem editar páginas de outros
+- Interações sociais: **curtidas e compartilhamentos**
+- Destaque para artistas independentes brasileiros e suas histórias
+
+---
+
 ## 🎯 Propósito
 
 A proposta surge diante do cenário enfrentado por artistas independentes no Brasil. Dados da **ABMI (Associação Brasileira da Música Independente)** revelam que:
@@ -24,17 +34,21 @@ Contudo, muitos ainda enfrentam barreiras para obter visibilidade e apoio adequa
 
 ---
 
-## 🌟 O que a plataforma oferecerá:
+## 🧹 5W2H do Projeto
 
-- Criação e personalização de páginas wiki por usuários autenticados
-- Cada wiki com **estilo diferenciado** e visual próprio do artista
-- Curadoria de conteúdo: edição pública desativada, somente admins podem editar páginas de outros
-- Interações sociais: **curtidas e compartilhamentos**
-- Destaque para artistas independentes brasileiros e suas histórias
+| **Item**               | **Pergunta**                     | **Resposta**                                                                                                              |
+| ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **What (O quê?)**      | O que será feito?                | Criação de uma comunidade de wikis para artistas.                                                                         |
+| **Why (Por quê?)**     | Por que será feito?              | Para ampliar a divulgação das histórias de artistas com baixa visibilidade.                                               |
+| **Where (Onde?)**      | Onde será feito?                 | Através de uma aplicação web (site).                                                                                      |
+| **When (Quando?)**     | Quando será feito?               | Iniciado em 09/04/2025, com lançamento previsto para 09/08/2025.                                                          |
+| **Who (Quem?)**        | Quem fará?                       | Léo                                                                                                                       |
+| **How (Como?)**        | Como será feito?                 | Com base nos meus aprendizados e utilizando ferramentas como React, React Hook Form, Tailwind, Dotenv, MongoDB e Express. |
+| **How much (Quanto?)** | Quanto custará / Quais recursos? | Exigirá tempo e muito esforço.                                                                                            |
 
 ---
 
-## 🧩 Evolução e atualizações futuras
+## 🧩️ Evolução e atualizações futuras
 
 O WikiLo está em constante construção e aprimoramento. À medida que o projeto evolui, **novas funcionalidades serão implementadas**, com foco especial na **personalização das páginas wiki**.
 
@@ -76,9 +90,10 @@ Este projeto será licenciado sob a [MIT License](LICENSE) assim que estiver pro
 
 ## ✉️ Contato
 
-Desenvolvido com ❤️ por [Leonardo Emanuel Marques](https://github.com/LeonardoMarques7).  
-📬 Dúvidas ou sugestões? Entre em contato: **leonardo.emcsantos@gmail.com**
+Desenvolvido com ❤️ por [Leonardo Emanuel Marques](https://github.com/LeonardoMarques7).\
+📬 Dúvidas ou sugestões? Entre em contato: **[leonardo.emcsantos@gmail.com](mailto\:leonardo.emcsantos@gmail.com)**
 
 ---
 
 > **WikiLo: valorizando talentos emergentes, um wiki por vez.**
+
