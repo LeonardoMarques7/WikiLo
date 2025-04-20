@@ -40,7 +40,7 @@ export default function Home() {
 						Explorar
 					</Link>
 					<Link
-						to={"/create-wiki"}
+						to={"/modelo-wiki"}
 						className="btn__createWiki bg-[#FF0043] text-white w-[150px] h-[40px] flex justify-center items-center rounded-xl drop-shadow-sm font-bold drop-shadow-[#FF0043]"
 					>
 						Criar Wiki

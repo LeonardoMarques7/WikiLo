@@ -1,0 +1,16 @@
+.react-datepicker__year-dropdown {
+    background-color: white;
+    border: 1px solid #d1d5db;
+    /* gray-300 */
+    border-radius: 0.5rem;
+}
+
+.react-datepicker__year-option {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.react-datepicker__year-option:hover {
+    background-color: #f3f4f6;
+    /* gray-100 */
+}

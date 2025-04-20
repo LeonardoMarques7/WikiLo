@@ -12,5 +12,8 @@
     .container__wikis {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-}
 
+    .register__container {
+        height: 100svh;
+    }
+}
