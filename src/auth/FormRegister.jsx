@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { registerUser } from "../api/api"; // Importe a função de registro
 
 const createUserFormSchema = z
 	.object({
@@ -40,18 +41,74 @@ const createUserFormSchema = z
 	});
 
 export default function FormRegister() {
-	const [output, setOutput] = useState("");
-
+	const [registrationError, setRegistrationError] = useState("");
+	const [registrationSuccess, setRegistrationSuccess] = useState(false);
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		reset,
+		formState: { errors, isSubmitting },
 	} = useForm({
 		resolver: zodResolver(createUserFormSchema),
 	});
 
-	function createUser(data) {
-		setOutput(JSON.stringify(data, null, 2));
+	async function createUser(data) {
+		setRegistrationError("");
+		setRegistrationSuccess(false);
+
+		try {
+			const responseData = await registerUser(data); // Use a função do api.js
+			console.log("Cadastro realizado com sucesso!", responseData);
+			setRegistrationSuccess(true);
+			reset();
+		} catch (error) {
+			console.error(
+				"Erro ao cadastrar:",
+				error.response?.data?.message ||
+					error.message ||
+					"Ocorreu um erro ao cadastrar."
+			);
+			setRegistrationError(
+				error.response?.data?.message ||
+					error.message ||
+					"Ocorreu um erro ao cadastrar."
+			);
+		}
+	}
+
+	async function createUser(data) {
+		// ...
+
+		try {
+			const response = await fetch("http://localhost:3000/api/register", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				const responseData = await response.json();
+				console.log("Cadastro realizado com sucesso!", responseData);
+				setRegistrationSuccess(true);
+				reset();
+			} else {
+				const errorText = await response.text(); // Leia o corpo como texto
+				console.log("Corpo da resposta de erro:", errorText); // Exiba o corpo no console
+				const errorData = JSON.parse(errorText); // Tente analisar como JSON (pode falhar se não for JSON)
+				console.error(
+					"Erro ao cadastrar:",
+					errorData.message || "Erro desconhecido"
+				);
+				setRegistrationError(
+					errorData.message || "Ocorreu um erro ao cadastrar."
+				);
+			}
+		} catch (error) {
+			console.error("Ocorreu um erro na requisição:", error);
+			setRegistrationError("Ocorreu um erro ao conectar com o servidor.");
+		}
 	}
 
 	return (
@@ -60,10 +117,10 @@ export default function FormRegister() {
 				className="background-overlay absolute inset-0"
 				style={{
 					backgroundImage: `url(${background__register})`,
-					opacity: 0.6, // ajusta o nível de opacidade
+					opacity: 0.6,
 					backgroundSize: "contain",
 					backgroundPosition: "center",
-					zIndex: -1, // para que fique abaixo do conteúdo
+					zIndex: -1,
 				}}
 			></div>
 			<img
@@ -198,14 +255,20 @@ export default function FormRegister() {
 						Entrar como:{" "}
 					</h2>
 					<div className="form__buttons flex justify-between gap-2 mb-5 ">
-						<button className="btn btn__facebook cursor-pointer  w-full bg-blue-500 rounded-md text-white flex items-center justify-evenly h-[40px] opacity-85 hover:opacity-100 ease-in-out duration-300 transition-all group">
+						<button
+							type="button" // Evite que esses botões submetam o formulário
+							className="btn btn__facebook cursor-pointer  w-full bg-blue-500 rounded-md text-white flex items-center justify-evenly h-[40px] opacity-85 hover:opacity-100 ease-in-out duration-300 transition-all group"
+						>
 							<FontAwesomeIcon
 								icon={faFacebook}
 								className="group-hover:scale-150 group-hover:rotate-[-5deg] transition-all ease-in-out duration-300"
 							/>{" "}
 							Facebook
 						</button>
-						<button className="btn btn__google cursor-pointer w-full bg-black rounded-md text-white flex items-center justify-evenly h-[40px] opacity-85 hover:opacity-100 ease-in-out duration-300 transition-all group">
+						<button
+							type="button" // Evite que esses botões submetam o formulário
+							className="btn btn__google cursor-pointer w-full bg-black rounded-md text-white flex items-center justify-evenly h-[40px] opacity-85 hover:opacity-100 ease-in-out duration-300 transition-all group"
+						>
 							<FontAwesomeIcon
 								icon={faGoogle}
 								className="group-hover:scale-150 group-hover:rotate-[-5deg] transition-all ease-in-out duration-300"
@@ -215,10 +278,22 @@ export default function FormRegister() {
 					</div>
 					<button
 						type="submit"
-						className="btn btn__submit cursor-pointer bg-linear-to-l to-blue-500 from-blue-700 from rounded-full text-white flex items-center justify-evenly h-[40px] w-[150px] m-auto shadow-2xl shadow-blue-500 hover:w-full ease-in-out duration-500 transition-all"
+						className={`btn btn__submit cursor-pointer bg-linear-to-l to-blue-500 from-blue-700 from rounded-full text-white flex items-center justify-evenly h-[40px] w-[150px] m-auto shadow-2xl shadow-blue-500 hover:w-full ease-in-out duration-500 transition-all ${
+							isSubmitting ? "opacity-50 cursor-wait" : ""
+						}`}
+						disabled={isSubmitting}
 					>
-						Criar conta
+						{isSubmitting ? "Cadastrando..." : "Criar conta"}
 					</button>
+
+					{registrationError && (
+						<p className="text-red-500 text-sm mt-2">{registrationError}</p>
+					)}
+					{registrationSuccess && (
+						<p className="text-green-500 text-sm mt-2">
+							Cadastro realizado com sucesso!
+						</p>
+					)}
 				</form>
 			</div>
 			<strong className="text-[18px]">

@@ -12,10 +12,12 @@
   "description": "",
   "type": "module",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "deploy": "file:..",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.13.0",
     "path": "^0.12.7",
     "projeto_wiki_jao": "file:..",
