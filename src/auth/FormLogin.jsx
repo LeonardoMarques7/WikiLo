@@ -3,6 +3,10 @@ import logo__login from "../assets/logo__1024x1024_transparent.png";
 import background__login from "../assets/background__primary.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function FormLogin() {
 	return (
@@ -38,6 +42,7 @@ export default function FormLogin() {
 						<input
 							type="text"
 							id="login"
+							placeholder="Email"
 							className="form__input focus:outline-0 h-[30px] text-pink-600 border-1 border-transparent border-b-pink-500 w-full"
 						/>
 					</div>
@@ -51,10 +56,11 @@ export default function FormLogin() {
 						<input
 							type="password"
 							id="password"
+							placeholder="Senha"
 							className="form__input focus:outline-0 h-[30px] text-pink-600 border-1 border-transparent border-b-pink-500 w-full"
 						/>
 					</div>
-					<h2 className="form__title--small text-start w-full mb-2 mt-10 text-[20px] font-bold">
+					<h2 className="form__title--small text-start w-full mb-2 mt-5 text-[20px] font-bold">
 						Entrar como:{" "}
 					</h2>
 					<div className="form__buttons flex justify-between gap-2 mb-5 ">

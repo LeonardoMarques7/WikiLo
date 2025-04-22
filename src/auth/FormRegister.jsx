@@ -5,12 +5,53 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const createUserFormSchema = z
+	.object({
+		name: z
+			.string()
+			.nonempty("O nome é obrigatório")
+			.transform((name) => {
+				return name
+					.trim()
+					.split(" ")
+					.map((word) => {
+						return word[0].toLocaleUpperCase().concat(word.substring(1));
+					})
+					.join(" ");
+			}),
+		email: z
+			.string()
+			.nonempty("O email é obrigatório")
+			.email("Formato de email inválido")
+			.toLowerCase(),
+		password: z.string().min(6, "A senha deve conter no minímo 6 caracteres"),
+		passwordConfirm: z.string(),
+		terms: z.literal(true, {
+			errorMap: () => ({ message: "Você deve aceitar os termos." }),
+		}),
+	})
+	.refine((data) => data.password === data.passwordConfirm, {
+		message: "As senhas não coincidem",
+		path: ["passwordConfirm"], // o erro aparece no campo certo
+	});
 
 export default function FormRegister() {
-	const { register, handleSubmit } = useForm();
+	const [output, setOutput] = useState("");
 
-	function crateUser(data) {
-		console.log(data);
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm({
+		resolver: zodResolver(createUserFormSchema),
+	});
+
+	function createUser(data) {
+		setOutput(JSON.stringify(data, null, 2));
 	}
 
 	return (
@@ -35,58 +76,89 @@ export default function FormRegister() {
 					Cadastrar
 				</h1>
 				<p className="form__text font-bold">Vamos criar uma conta?</p>
-				<form action="" className="flex flex-col gap-3 mt-4">
+				<form
+					onSubmit={handleSubmit(createUser)}
+					className="flex flex-col gap-3 mt-4"
+				>
 					<div className="group__input flex flex-col justify-start text-start items-start">
 						<label
-							htmlFor="register"
-							className="input__label font-bold text-blue-500 text-[20px]"
+							htmlFor="name"
+							className="input__label font-bold text-blue-500 text-[18px] flex"
 						>
 							Nome de Usuário
+							<span className="text-red-300 text-sm">*</span>
 						</label>
 						<input
 							type="text"
-							id="register"
+							id="name"
+							{...register("name")}
 							className="form__input focus:outline-0 h-[30px] text-blue-600 border-1 border-transparent border-b-blue-500 w-full"
 						/>
+						{errors.name && (
+							<span className="font-bold text-sm text-black">
+								{errors.name.message}
+							</span>
+						)}
 					</div>
 					<div className="group__input flex flex-col justify-start text-start items-start">
 						<label
-							htmlFor="register"
-							className="input__label font-bold text-blue-500 text-[20px]"
+							htmlFor="email"
+							className="input__label font-bold text-blue-500 text-[18px] flex"
 						>
 							Email
+							<span className="text-red-300 text-sm">*</span>
 						</label>
 						<input
 							type="text"
-							id="register"
+							id="email"
+							{...register("email")}
 							className="form__input focus:outline-0 h-[30px] text-blue-600 border-1 border-transparent border-b-blue-500 w-full"
 						/>
+						{errors.email && (
+							<span className="font-bold text-sm text-black">
+								{errors.email.message}
+							</span>
+						)}
 					</div>
 					<div className="group__input flex flex-col justify-start text-start items-start">
 						<label
 							htmlFor="register"
-							className="input__label font-bold text-blue-500 text-[20px]"
+							className="input__label font-bold text-blue-500 text-[18px] flex"
 						>
 							Senha
+							<span className="text-red-300 text-sm">*</span>
 						</label>
 						<input
 							type="password"
 							id="password"
+							{...register("password")}
 							className="form__input focus:outline-0 h-[30px] text-blue-600 border-1 border-transparent border-b-blue-500 w-full"
 						/>
+						{errors.password && (
+							<span className="font-bold text-sm text-black">
+								{errors.password.message}
+							</span>
+						)}
 					</div>
 					<div className="group__input flex flex-col justify-start text-start items-start">
 						<label
 							htmlFor="register"
-							className="input__label font-bold text-blue-500 text-[20px]"
+							className="input__label font-bold text-blue-500 text-[18px] flex"
 						>
 							Confirmar Senha
+							<span className="text-red-300 text-sm">*</span>
 						</label>
 						<input
 							type="password"
-							id="password"
+							id="passwordConfirm"
+							{...register("passwordConfirm")}
 							className="form__input focus:outline-0 h-[30px] text-blue-600 border-1 border-transparent border-b-blue-500 w-full"
 						/>
+						{errors.passwordConfirm && (
+							<span className="font-bold text-sm text-black">
+								{errors.passwordConfirm.message}
+							</span>
+						)}
 					</div>
 					<span className="input__checkTermsAndPolicy text-xs w-full flex items-center justify-start font-bold">
 						<label
@@ -95,8 +167,8 @@ export default function FormRegister() {
 						>
 							<input
 								type="checkbox"
-								name="terms"
 								id="terms"
+								{...register("terms")}
 								className="peer hidden"
 							/>
 							<div className="w-4 h-4 rounded-full p-2 border-2 border-gray-500 peer-checked:bg-blue-500 peer-checked:border-blue-800 peer-checked:shadow-md peer-checked:shadow-blue-500 flex items-center justify-center transition-all">
@@ -117,7 +189,12 @@ export default function FormRegister() {
 							</span>
 						</label>
 					</span>
-					<h2 className="form__title--small text-start w-full mt-5 text-[20px] font-bold">
+					{errors.terms && (
+						<span className="font-bold text-sm text-black text-start">
+							{errors.terms.message}
+						</span>
+					)}
+					<h2 className="form__title--small text-start w-full mt-5 text-[18px] font-bold">
 						Entrar como:{" "}
 					</h2>
 					<div className="form__buttons flex justify-between gap-2 mb-5 ">
@@ -144,7 +221,7 @@ export default function FormRegister() {
 					</button>
 				</form>
 			</div>
-			<strong className="text-[20px]">
+			<strong className="text-[18px]">
 				Não tem uma conta?{" "}
 				<Link
 					to={"/register"}
