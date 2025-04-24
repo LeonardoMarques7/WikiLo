@@ -18,7 +18,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.13.0",
+    "mongodb": "^6.16.0",
     "path": "^0.12.7",
     "projeto_wiki_jao": "file:..",
     "wiki_jao": "file:.."

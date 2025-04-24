@@ -1,5 +1,6 @@
 import express, { response } from "express";
 import cors from "cors";
+import { connectToDatabase } from '../api/connect.js'; 
 import { db } from "./connect.js"; // Importe o objeto 'db' do driver nativo
 import { fileURLToPath } from "url";
 import path from "path";
@@ -8,8 +9,12 @@ import { ObjectId } from 'mongodb'; // Importe ObjectId se precisar
 import dotenv from "dotenv";
 import authMiddleware from '../middleware/authMiddleware.js';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 
 dotenv.config(); 
+
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -125,6 +130,80 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Erro ao fazer login.' });
     }
 });
+
+async function verifyGoogleToken(token) {
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID, // Seu Client ID do Google
+        });
+        const payload = ticket.getPayload();
+        return payload;
+    } catch (error) {
+        console.error("Erro ao verificar token do Google:", error);
+        return null;
+    }
+}
+
+app.post('/api/auth/google', async (req, res) => {
+    try {
+        
+        const db = await connectToDatabase(); 
+        
+        const { token } = req.body;
+        console.log("Token do Google recebido:", token);
+
+        const payload = await verifyGoogleToken(token);
+        console.log("Payload do token do Google:", payload);
+
+        if (!payload?.email_verified) {
+            return res.status(401).json({ success: false, error: 'Email do Google não verificado.' });
+        }
+
+        const googleEmail = payload.email;
+        const googleName = payload.name;
+        console.log("Email do Google:", googleEmail, "Nome do Google:", googleName);
+
+        try {
+            console.log("db é:", db);
+            console.log("Tem collection users?", db?.collection);
+            let user = await db.collection('users').findOne({ email: googleEmail });
+            console.log("Usuário encontrado:", user);
+
+            if (!user) {
+                // Se o usuário não existir, crie um novo usuário.
+                const newUser = {
+                    name: googleName,
+                    email: googleEmail,
+                    password: 'google_login', // Ou gere uma senha aleatória segura
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                };
+                try {
+                    const result = await db.collection('users').insertOne(newUser);
+                    user = { _id: result.insertedId, ...newUser };
+                    console.log("Novo usuário criado:", user); // Adicione este log
+                } catch (dbError) {
+                    console.error("Erro ao inserir novo usuário:", dbError); // Adicione este log
+                    return res.status(500).json({ success: false, error: 'Erro ao inserir novo usuário no banco de dados.' });
+                }
+            }
+
+
+            const appToken = jwt.sign({ userId: user._id, name: user.name }, JWT_SECRET, { expiresIn: '1h' });
+            res.json({ success: true, token: appToken });
+
+        } catch (dbError) {
+            console.error("Erro ao interagir com o banco de dados:", dbError.message, dbError.stack);
+            return res.status(500).json({ success: false, error: 'Erro ao interagir com o banco de dados.' });
+        }
+
+    } catch (error) {
+        console.error('Erro ao autenticar com o Google:', error);
+        res.status(500).json({ success: false, error: 'Erro ao autenticar com o Google.' });
+    }
+});
+
 
 app.get('/modelo-wiki', authMiddleware, (req, res) => {
     res.json({ message: `Rota protegida! Olá, ${req.user.name}` });
