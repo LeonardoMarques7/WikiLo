@@ -3,7 +3,7 @@ import logo__register from "../assets/logo__1024x1024_transparent.png";
 import background__register from "../assets/background__three.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faSignIn, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { z } from "zod";
@@ -112,7 +112,11 @@ export default function FormRegister() {
 	}
 
 	return (
-		<section className="register__container h-auto pb-10 m-auto text-center flex flex-col justify-center items-center gap-0 relative bg-black/20">
+		<section
+			className={`register__container h-auto pb-10 m-auto text-center flex flex-col justify-center items-center gap-0 relative bg-black/20 ${
+				registrationSuccess && "bg-black/70"
+			}`}
+		>
 			<div
 				className="background-overlay absolute inset-0"
 				style={{
@@ -128,7 +132,11 @@ export default function FormRegister() {
 				alt="Logo da WikiLo"
 				className="logo__register h-[200px] brightness-0 invert-100 opacity-60 absolute top-2 left-2"
 			/>
-			<div className="form__register bg-white flex flex-col p-5 m-5 pb-5 rounded-2xl max-w-md w-full px-12">
+			<div
+				className={`form__register bg-white flex flex-col p-5 m-5 pb-5 rounded-2xl max-w-md w-full px-12 ${
+					registrationSuccess && "bg-white/80"
+				}`}
+			>
 				<h1 className="form__title text-blue-500 text-3xl font-bold">
 					Cadastrar
 				</h1>
@@ -289,22 +297,28 @@ export default function FormRegister() {
 					{registrationError && (
 						<p className="text-red-500 text-sm mt-2">{registrationError}</p>
 					)}
-					{registrationSuccess && (
-						<p className="text-green-500 text-sm mt-2">
-							Cadastro realizado com sucesso!
-						</p>
-					)}
 				</form>
 			</div>
 			<strong className="text-[18px]">
 				Não tem uma conta?{" "}
 				<Link
-					to={"/register"}
+					to={"/auth/login"}
 					className="form__link text-blue-700 ease-in-out transition-all duration-500 hover:text-blue-600 hover:bg-white rounded-md p-2"
 				>
 					Entrar
 				</Link>
 			</strong>
+			{registrationSuccess && (
+				<span className="container__sucess z-99 text-[20px] max-w-md w-full opacity-90 text-white fixed bg-blue-500 border-1 border-gray-200 rounded-md px-5 py-5 flex flex-col justify-center items-center gap-10">
+					Cadastro realizado com suceso
+					<Link
+						to={"/auth/login"}
+						className="form__link text-white bg-blue-400  ease-in-out transition-all duration-500 hover:text-blue-600 hover:bg-white rounded-md p-2"
+					>
+						<FontAwesomeIcon icon={faSignIn} /> Entrar
+					</Link>
+				</span>
+			)}
 		</section>
 	);
 }

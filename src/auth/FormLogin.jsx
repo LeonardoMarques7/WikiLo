@@ -346,7 +346,6 @@ export default function FormLogin() {
 						</label>
 						<input
 							type="password"
-							id="password"
 							className="form__input focus:outline-0 h-[30px] text-pink-600 border-1 border-transparent border-b-pink-500 w-full"
 							{...register("password")}
 						/>

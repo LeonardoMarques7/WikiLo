@@ -1,7 +1,7 @@
 import express, { response } from "express";
 import cors from "cors";
 import { connectToDatabase } from '../api/connect.js'; 
-import { db } from "./connect.js"; // Importe o objeto 'db' do driver nativo
+const db = await connectToDatabase(); 
 import { fileURLToPath } from "url";
 import path from "path";
 import bcrypt from 'bcrypt';
