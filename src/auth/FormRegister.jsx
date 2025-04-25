@@ -57,7 +57,7 @@ export default function FormRegister() {
 		setRegistrationSuccess(false);
 
 		try {
-			const responseData = await registerUser(data); // Use a função do api.js
+			const responseData = await registerUser(data);
 			console.log("Cadastro realizado com sucesso!", responseData);
 			setRegistrationSuccess(true);
 			reset();
@@ -74,10 +74,6 @@ export default function FormRegister() {
 					"Ocorreu um erro ao cadastrar."
 			);
 		}
-	}
-
-	async function createUser(data) {
-		// ...
 
 		try {
 			const response = await fetch("http://localhost:3000/api/register", {

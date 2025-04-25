@@ -204,9 +204,38 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
-
 app.get('/modelo-wiki', authMiddleware, (req, res) => {
     res.json({ message: `Rota protegida! Olá, ${req.user.name}` });
+});
+
+// Criando artista
+app.post("/api/create-artist", async (req, res) => {
+    try {
+        const { name, biography, date_initial, origin, banner, pictures, genres, callou_phrase } = req.body;
+
+        if (!name || !biography || !date_initial || !origin || !banner || !pictures || !genres || !callou_phrase) {
+            return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+        }
+
+        const newUserDocument = {
+            name,
+            biography,
+            date_initial,
+            origin,
+            banner,
+            pictures,
+            genres,
+            callou_phrase,
+        };
+
+        const result = await db.collection('wikis').insertOne(newUserDocument);
+
+        res.status(201).json({ message: 'Artista cadastrado com sucesso!', userId: result.insertedId.toString(), name: newUserDocument.name });
+
+    } catch (error) {
+        console.error('Erro ao registrar artista:', error);
+        res.status(500).json({ message: 'Erro ao cadastrar o usuário.', error: error.message }); // Adicionando a mensagem do erro original
+    }
 });
 
 // Serve os arquivos estáticos (como o bundle do React)

@@ -31,3 +31,13 @@ export const googleLogin = async (googleToken) => {
         throw error; // Rejeita o erro para que o componente possa tratá-lo
     }
 };
+
+export const registerArtist = async (data) => {
+    try {
+        const response = await axios.post(`${URL}/create-artist`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao registrar usuário:", error);
+        throw error; // Rejeita o erro para que o componente possa tratá-lo
+    }
+};
