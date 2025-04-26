@@ -34,7 +34,7 @@ export const googleLogin = async (googleToken) => {
 
 export const registerArtist = async (data) => {
     try {
-        const response = await axios.post(`${URL}/create-artist`, data);
+        const response = await axios.post(`${URL}/artist`, data);
         return response.data;
     } catch (error) {
         console.error("Erro ao registrar usuário:", error);

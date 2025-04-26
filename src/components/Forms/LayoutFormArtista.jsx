@@ -1,11 +1,25 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Select from "react-select";
+import "./LayoutFormArtistOne.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+	faUser,
+	faImage,
+	faCompactDisc,
+	faTicket,
+	faHome,
+	faLocation,
+	faLocationDot,
+	faStar,
+} from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerArtist } from "../../api/api";
+import image__album__preview from "../../assets/album__preview.png";
+import { faCpanel } from "@fortawesome/free-brands-svg-icons";
 // import { artistCreate } from "../api/api"; // Importe a função de registro
 
 const generosMusicais = [
@@ -38,7 +52,7 @@ const createArtistFormSchema = z.object({
 				.join(" ");
 		}),
 	biography: z.string().nonempty("A biografia é obrigatória"),
-	date_initial: z.string().nonempty("A data de início é obrigatória"),
+	date_initial: z.string().nonempty("A ano de início é obrigatória"),
 	origin: z.string().nonempty("A origem é obrigatória"),
 	banner: z.any().optional(), // Permitir qualquer tipo (File) e validar na onSubmit
 	pictures: z.any().optional(), // Permitir qualquer tipo (File ou array) e validar na onSubmit
@@ -57,6 +71,7 @@ const LayoutFormArtista = ({ Layout }) => {
 		handleSubmit,
 		reset,
 		setValue,
+		watch,
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(createArtistFormSchema),
@@ -88,8 +103,8 @@ const LayoutFormArtista = ({ Layout }) => {
 				? "#ec4899" // rosa-500
 				: state.isFocused
 				? "#fce7f3" // rosa-100
-				: "#fff",
-			color: state.isSelected ? "#fff" : "#000",
+				: "#e5e7eb",
+			color: state.isSelected ? "#e5e7eb" : "#000",
 			padding: "10px 12px",
 			cursor: "pointer",
 			"&:hover": {
@@ -97,101 +112,70 @@ const LayoutFormArtista = ({ Layout }) => {
 			},
 		}),
 	};
-
-	// async function createArtist(data) {
-	// 	const responseData = await registerArtist(data);
-	// 	reset();
-	// 	try {
-	// 		const response = await fetch("http://localhost:3000/api/create-artist", {
-	// 			method: "POST",
-	// 			headers: {
-	// 				"Content-Type": "application/json",
-	// 			},
-	// 			body: JSON.stringify(data),
-	// 		});
-
-	// 		if (response.ok) {
-	// 			const responseData = await response.json();
-	// 			reset();
-	// 		} else {
-	// 			const errorText = await response.text(); // Leia o corpo como texto
-	// 			console.log("Corpo da resposta de erro:", errorText); // Exiba o corpo no console
-	// 			try {
-	// 				const errorData = JSON.parse(errorText); // Tente analisar como JSON
-	// 				console.error(
-	// 					"Erro ao cadastrar:",
-	// 					errorData.message || "Erro desconhecido"
-	// 				);
-	// 				setRegistrationError(
-	// 					errorData.message || "Ocorreu um erro ao cadastrar."
-	// 				);
-	// 			} catch (e) {
-	// 				console.error("Erro ao analisar resposta JSON:", e);
-	// 				console.error("Conteúdo da resposta de erro:", errorText);
-	// 			}
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Ocorreu um erro na requisição:", error);
-	// 	}
-	// }
-
-	async function createArtist(data) {
-		setRegistrationError("");
-		setRegistrationSuccess(false);
-
+	const createArtist = async (data) => {
 		const formData = new FormData();
 		formData.append("name", data.name);
 		formData.append("biography", data.biography);
 		formData.append("date_initial", data.date_initial);
 		formData.append("origin", data.origin);
-		formData.append("banner", data.banner); // Envie o objeto File do banner
+
+		// Anexando o banner (lembre-se que data.banner é um FileList)
+		if (data.banner && data.banner[0]) {
+			formData.append("banner", data.banner[0]);
+		}
+
+		// Anexando as fotos (data.pictures também é um FileList se multiple)
 		if (data.pictures) {
-			if (Array.isArray(data.pictures)) {
-				data.pictures.forEach((picture) =>
-					formData.append("pictures", picture)
-				); // Envie múltiplos arquivos de fotos
-			} else {
-				formData.append("pictures", data.pictures); // Envie um único arquivo de foto
+			for (let i = 0; i < data.pictures.length; i++) {
+				formData.append("pictures", data.pictures[i]);
 			}
 		}
-		formData.append("genres", JSON.stringify(data.genres)); // Pode enviar como JSON string, o backend precisará parsear
+
+		// Anexando os gêneros como uma string JSON
+		formData.append("genres", JSON.stringify(data.genres));
+
 		formData.append("callou_phrase", data.callou_phrase);
 
-		try {
-			const response = await fetch("http://localhost:3000/api/create-artist", {
-				method: "POST",
-				// Remova o header "Content-Type: application/json" para que o navegador defina o correto para FormData
-				body: formData,
-			});
+		for (const [key, value] of formData.entries()) {
+			console.log(`${key}:`, value);
+		}
 
-			if (response.ok) {
-				const responseData = await response.json();
-				console.log("Artista cadastrado com sucesso:", responseData);
-				setRegistrationSuccess(true);
-				setRegistrationError("");
-				reset(); // Limpar o formulário
-			} else {
-				const errorText = await response.text();
-				console.error("Erro ao cadastrar:", errorText);
-				try {
-					const errorData = JSON.parse(errorText);
-					setRegistrationError(
-						errorData.message || "Ocorreu um erro ao cadastrar."
-					);
-				} catch (e) {
-					setRegistrationError("Erro desconhecido ao cadastrar.");
-				}
-			}
+		setIsSubmitting(true);
+		try {
+			const responseData = await registerArtist(formData); // Use a sua função api
+			console.log("Artista cadastrado com sucesso:", responseData);
+			setRegistrationSuccess(true);
+			setRegistrationError("");
+			reset();
 		} catch (error) {
-			console.error("Erro ao enviar dados:", error);
-			setRegistrationError("Ocorreu um erro de rede.");
+			console.error("Erro ao cadastrar:", error);
+			setRegistrationError(
+				error.response?.data?.message || "Ocorreu um erro ao cadastrar."
+			);
+			// Se o backend envia uma mensagem de erro específica, use-a
 		} finally {
 			setIsSubmitting(false);
 		}
-	}
+	};
+
+	const watchedName = watch("name");
+	const watchedBiography = watch("biography");
+	const watchedOrigin = watch("origin");
+	const watchedCallouPhrase = watch("callou_phrase");
+	const watchedGenres = watch("genres");
+	const watchedDateInitial = watch("date_initial");
+	const watchedBanner = watch("banner");
+	const watchedPictures = watch("pictures");
+
+	const placeholderBio =
+		"Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio delectus dolore molestias laudantium maxime nemo nobis quaerat fugiat. Praesentium cumque consequatur voluptatem, quia debitis velit ad ut molestiae id nam. Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio delectus dolore molestias laudantium maxime nemo nobis quaerat fugiat. Praesentium cumque consequatur voluptatem, quia debitis velit ad ut molestiae id nam Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio delectus dolore molestias laudantium maxime nemo nobis quaerat fugiat. Praesentium cumque consequatur voluptatem, quia debitis velit ad ut molestiae id nam";
+
+	const placeholderGenres = ["Pop", "MPB", "Samba"];
+	const placeholderCallouPhrase =
+		"Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet, aspernatur.";
 
 	return (
-		<main className="flex">
+		<main className="flex max-w-[1400px] m-auto">
 			<form
 				onSubmit={handleSubmit(createArtist)}
 				className="artist__form w-full max-w-[500px] mx-10 flex flex-col gap-5"
@@ -207,7 +191,7 @@ const LayoutFormArtista = ({ Layout }) => {
 						placeholder="Daniel Marques"
 						className={`border-1 ${
 							errors.name ? "border-red-500" : "border-pink-500"
-						} h-[50px] focus:border-pink-600 px-4 outline-0 rounded-md`}
+						} h-[50px] focus:border-pink-600 px-4 outline-0 rounded-md bg-white`}
 					/>
 					{errors.name && (
 						<span className="text-red-500 text-sm">{errors.name.message}</span>
@@ -224,7 +208,7 @@ const LayoutFormArtista = ({ Layout }) => {
 						placeholder="Fale um pouco sobre a história e carreira do artista..."
 						className={`h-[100px] max-h-[300px] min-h-[100px] border-1 ${
 							errors.biography ? "border-red-500" : "border-pink-500"
-						} focus:border-pink-600 px-4 py-4 outline-0 rounded-md`}
+						} focus:border-pink-600 px-4 py-4 outline-0 rounded-md bg-white`}
 					></textarea>
 					{errors.biography && (
 						<span className="text-red-500 text-sm">
@@ -248,7 +232,9 @@ const LayoutFormArtista = ({ Layout }) => {
 						}}
 						value={anos.find((ano) => ano.value === anoInicio) || null}
 						isSearchable={false}
-						className={errors.date_initial ? "border-red-500 rounded-md" : ""}
+						className={
+							errors.date_initial ? "border-red-500 rounded-md bg-white" : ""
+						}
 					/>
 					{errors.date_initial && (
 						<span className="text-red-500 text-sm">
@@ -264,7 +250,7 @@ const LayoutFormArtista = ({ Layout }) => {
 					<input
 						className={`border-1 ${
 							errors.origin ? "border-red-500" : "border-pink-500"
-						} h-[50px] focus:border-pink-600 px-4 outline-0 rounded-md`}
+						} h-[50px] focus:border-pink-600 px-4 outline-0 rounded-md bg-white`}
 						type="text"
 						id="origin"
 						placeholder="São Paulo, SP"
@@ -283,7 +269,8 @@ const LayoutFormArtista = ({ Layout }) => {
 					<input
 						type="file"
 						id="imageBanner"
-						className="border border-pink-500 h-[50px] focus:border-pink-600  file:h-full rounded-md text-[16px] file:mr-4 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600 hover:cursor-pointer"
+						{...register("banner")}
+						className="border border-pink-500 h-[50px] focus:border-pink-600  file:h-full rounded-md bg-white text-[16px] file:mr-4 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600 hover:cursor-pointer"
 					/>
 					{errors.banner && (
 						<span className="text-red-500 text-sm">
@@ -300,7 +287,9 @@ const LayoutFormArtista = ({ Layout }) => {
 						<input
 							type="file"
 							id="imageBanner"
-							className="border border-pink-500 h-[50px] focus:border-pink-600  file:h-full rounded-md text-[16px] file:mr-4 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600 hover:cursor-pointer"
+							multiple
+							{...register("pictures")}
+							className="border border-pink-500 h-[50px] focus:border-pink-600  file:h-full rounded-md bg-white text-[16px] file:mr-4 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600 hover:cursor-pointer"
 						/>
 						{errors.pictures && (
 							<span className="text-red-500 text-sm">
@@ -326,8 +315,8 @@ const LayoutFormArtista = ({ Layout }) => {
 							}}
 							styles={customStyles}
 							className={`basic-multi-select ${
-								errors.genres ? "border-red-500 rounded-md" : ""
-							}`}
+								errors.genres ? "border-red-500 rounded-md bg-white" : ""
+							} bg-gray-200`}
 							classNamePrefix="select"
 							value={generosSelecionados} // Adicione o value para controlar o componente
 						/>
@@ -346,9 +335,10 @@ const LayoutFormArtista = ({ Layout }) => {
 					<input
 						className={`border-1 ${
 							errors.callouPhrase ? "border-red-500" : "border-pink-500"
-						} h-[50px] focus:border-pink-600 px-4 outline-0 rounded-md`}
+						} h-[50px] focus:border-pink-600 px-4 outline-0 rounded-md bg-white`}
 						type="text"
 						id="callouPhrase"
+						placeholder="Hello World!"
 						{...register("callou_phrase")}
 					/>
 					{errors.callou_phrase && (
@@ -365,9 +355,221 @@ const LayoutFormArtista = ({ Layout }) => {
 				</button>
 			</form>
 
-			<section className="preview mr-10 flex flex-col w-full">
+			<section className="preview mr-10 flex flex-col w-full max-w-4xl bg-white p-5 rounded-md">
 				<h2 className="text-2xl font-bold text-pink-500">Pré-vizualização</h2>
-				<section className="container__preview bg-gray-300 w-full h-full rounded-2xl flex-1"></section>
+				<section className="container__preview h-full gap-2 rounded-2xl max-w-4xl w-full flex flex-col relative">
+					{watchedBanner && watchedBanner[0] ? (
+						<img
+							src={URL.createObjectURL(watchedBanner[0])}
+							alt="Prévia do banner"
+							className="max-h-[200px] h-full flex flex-col text-2xl text-center gap-10 bg-center bg-cover relative top-0 left-0 right-0 object-cover w-full bg__image"
+						/>
+					) : (
+						<div className="h-[200px] flex items-center justify-center text-2xl text-gray-400 bg-gray-200 w-full">
+							Prévia do banner
+						</div>
+					)}
+					<header className="flex absolute items-center w-full top-0">
+						<nav className="flex mx-2 header w-full items-center justify-envely">
+							<ul className="container__icon text__home__hidden--moblie">
+								<li className="container__item uppercase font-bold">
+									{watchedName || "Nome do Artista"} Wiki
+								</li>
+							</ul>
+							<ul className="navagation__container flex w-full absolute text-center justify-center gap-10">
+								<li className="container__item">
+									<a href="/#albuns" className="item__link">
+										Álbuns
+									</a>
+								</li>
+								<li className="container__item">
+									<a href="/#fotos" className="item__link">
+										Fotos
+									</a>
+								</li>
+								<li className="container__item">
+									<a href="/#biography" className="item__link">
+										Biografia
+									</a>
+								</li>
+							</ul>
+						</nav>
+					</header>
+
+					<div
+						className="max-w-[1400px] albuns__container-pm flex flex-col gap-2"
+						id="Home"
+					>
+						<h2 className="title__container--album font-extrabold text-2xl">
+							Álbuns
+						</h2>
+						<ul className="albuns__container grid grid-cols-2 lg:grid-cols-4 gap-5 justify-between">
+							<li
+								className="card__album rounded-2xl"
+								style={{ backgroundImage: `url(${image__album__preview})` }}
+							>
+								<span className="texts__card">
+									<h3 className="card-album--title font-bold">Nome do álbum</h3>
+									<h3 className="card-album--texts">Ano</h3>
+								</span>
+							</li>
+							<li
+								className="card__album rounded-2xl"
+								style={{ backgroundImage: `url(${image__album__preview})` }}
+							>
+								<span className="texts__card">
+									<h3 className="card-album--title font-bold">Nome do álbum</h3>
+									<h3 className="card-album--texts">Ano</h3>
+								</span>
+							</li>
+							<li
+								className="card__album rounded-2xl"
+								style={{ backgroundImage: `url(${image__album__preview})` }}
+							>
+								<span className="texts__card">
+									<h3 className="card-album--title font-bold">Nome do álbum</h3>
+									<h3 className="card-album--texts">Ano</h3>
+								</span>
+							</li>
+							<li
+								className="card__album rounded-2xl"
+								style={{ backgroundImage: `url(${image__album__preview})` }}
+							>
+								<span className="texts__card">
+									<h3 className="card-album--title font-bold">Nome do álbum</h3>
+									<h3 className="card-album--texts">Ano</h3>
+								</span>
+							</li>
+						</ul>
+					</div>
+					<section className="fotos__container mt-10">
+						<div className="max-w-[1400px] m-auto justify-center flex flex-col gap-5 container--fotos">
+							<h2 className="title__container--fotos text-2xl font-extrabold">
+								Galeria de Fotos
+							</h2>
+							<ul className="fotos__list grid grid-cols-4 xl:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-5">
+								{watchedPictures && watchedPictures[0] ? (
+									Array.from(watchedPictures).map((pic, index) => (
+										<img
+											key={index}
+											src={URL.createObjectURL(pic)}
+											alt={`Foto ${index + 1}`}
+											className="w-full h-full rounded-2xl object-cover"
+										/>
+									))
+								) : (
+									<div className="list__pictures flex gap-5">
+										<div className="biography__image min-w-[150px] min-h-[150px] sticky top-0 flex items-center justify-center text-gray-400 bg-gray-200">
+											Prévia da Foto
+										</div>
+										<div className="biography__image min-w-[150px] min-h-[150px] sticky top-0 flex items-center justify-center text-gray-400 bg-gray-200">
+											Prévia da Foto
+										</div>
+									</div>
+								)}
+							</ul>
+						</div>
+					</section>
+					<section className="biography__container">
+						<div className="biography__container--desc max-w-[1400px]">
+							<h2 className="biography__title">Biografia</h2>
+							<div className="container__description relative">
+								{watchedPictures && watchedPictures[0] ? (
+									<img
+										src={URL.createObjectURL(watchedPictures[0])}
+										alt="Prévia do banner"
+										className="biography__image sticky top-0"
+									/>
+								) : (
+									<div className="biography__image min-w-[150px] min-h-[150px] sticky top-0 flex items-center justify-center text-gray-400 bg-gray-200">
+										Prévia do banner
+									</div>
+								)}
+								<div className="description__texts--container">
+									{watchedBiography || placeholderBio}
+								</div>
+							</div>
+							<div className="description__texts--more py-2.5 pb-5 flex items-center gap-5 border-1 border-transparent border-b-gray-400 mt-5">
+								<span className="flex gap-2 items-center">
+									<FontAwesomeIcon icon={faLocationDot} />
+									<h2 className="title__texts--more">Origem:</h2>
+									{watchedOrigin || "Sorocaba"}
+								</span>
+								<span className="flex gap-2 items-center">
+									<FontAwesomeIcon icon={faStar} />
+									<h2 className="title__texts--more">Ano de Início:</h2>
+									{watchedDateInitial || "2025"}
+								</span>
+								<span className="flex gap-2 items-center">
+									<FontAwesomeIcon icon={faCompactDisc} />
+									<h2 className="title__texts--more">Gêneros:</h2>
+									{(watchedGenres || placeholderGenres).join(", ")}
+								</span>
+							</div>
+						</div>
+					</section>
+					<footer className="footer__container flex flex-col">
+						<div className="footer__section-links flex">
+							<div className="footer__card flex flex-col max-w-[700px]">
+								<h2 className="footer__title font-bold uppercase mb-5">
+									{watchedName || "Nome do Artista"} Wiki
+								</h2>
+								<code>{watchedCallouPhrase || placeholderCallouPhrase}</code>
+							</div>
+							<div className="footer__card mx-10 w-[300px] ">
+								<h2 className="footer__title font-bold">Links Úteis</h2>
+								<ul className="footer__card--links flex flex-col gap-2 my-5">
+									<li className="footer__item text-gray-600">
+										<a href="#" className="">
+											Álbuns
+										</a>
+									</li>
+									<li className="footer__item text-gray-600">
+										<a href="#" className="">
+											Fotos
+										</a>
+									</li>
+									<li className="footer__item text-gray-600">
+										<a href="#" className="">
+											Biografia
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div className="footer__card flex-1/2">
+								<h2 className="footer__title font-bold">Redes Socias</h2>
+								<ul className="footer__card--links flex flex-col gap-2 my-5">
+									<li className="footer__item text-gray-600">
+										<a href="#" className="">
+											Instagram
+										</a>
+									</li>
+									<li className="footer__item text-gray-600">
+										<a href="#" className="">
+											Twitter
+										</a>
+									</li>
+									<li className="footer__item text-gray-600">
+										<a href="#" className="">
+											YouTube
+										</a>
+									</li>
+									<li className="footer__item text-gray-600">
+										<a href="#" className="">
+											Spotify
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div className="footer__bottom-texts border-t-2 border-gray-300 p-10 text-center">
+							<p className="bottom-texts">
+								© 2025 {watchedName || "De Wikilo para "} WikiLo. Todos os
+								direitos reservados.
+							</p>
+						</div>
+					</footer>
+				</section>
 				<span className="text-end font-bold">* Imagens Ilustrativas</span>
 			</section>
 		</main>

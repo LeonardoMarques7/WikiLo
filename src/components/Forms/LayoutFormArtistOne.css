@@ -1,0 +1,119 @@
+.header {
+    background: #ffffff96;
+    box-shadow: 0 8px 32px 0 rgba(201, 201, 201, 0.37);
+    backdrop-filter: blur(13.5px);
+    z-index: 10;
+    -webkit-backdrop-filter: blur(13.5px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 10px 10px;
+    margin-top: 15px;
+    border-radius: 10px;
+}
+
+/* Álbuns */
+
+@media (min-width: 1400px) {
+    .albuns__container-pm {
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 1400px) {
+    .albuns__container-pm {
+        padding-top: 0rem !important;
+    }
+}
+
+.title__container--album,
+.about__title {
+    color: #000;
+    font-size: 30px;
+    margin: 30px 0px;
+    font-weight: bold;
+}
+
+@media (max-width: 640px) {
+    .albuns__container {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+
+/* Álbum */
+
+.card__album {
+    max-width: 500px;
+    width: 100%;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border-radius: 10px;
+    background-position: center;
+    transition: all ease-in-out .5s;
+    background-size: cover;
+    cursor: pointer;
+}
+
+.card__album:hover {
+    transform: rotate(2deg);
+}
+
+.texts__card {
+    padding: 20px;
+    color: #fff;
+    font-size: x-large;
+    background: rgb(0, 0, 0);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.801) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 10px;
+}
+
+/* Biografia */
+
+@media (min-width: 1400px) {
+    .biography__container--desc {
+        margin: 0 auto;
+    }
+}
+
+.biography__title {
+    font-size: 30px;
+    margin: 30px 0px;
+    font-weight: bold;
+}
+
+.description__texts--container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.container__description {
+    display: flex;
+    gap: 40px;
+}
+
+.biography__image {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 20px;
+    transition: .5s all ease-in-out;
+    box-shadow: 0px 0px 15px 4px #ffffff69;
+}
+
+@media (max-width: 1140px) {
+    .container__description {
+        flex-direction: column;
+    }
+
+    .biography__image {
+        position: relative;
+    }
+}
+
+.description__texts {
+    color: #333;
+    font-size: 18px;
+}

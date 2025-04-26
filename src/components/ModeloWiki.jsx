@@ -4,7 +4,7 @@ import ModeloWikiList from "./ModeloWikiList";
 
 const ModeloWiki = () => {
 	return (
-		<div className="h-screen">
+		<div className="h-screen max-w-[1400px] m-auto">
 			<ModeloWikiList />
 		</div>
 	);

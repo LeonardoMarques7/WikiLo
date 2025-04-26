@@ -10,6 +10,9 @@ import dotenv from "dotenv";
 import authMiddleware from '../middleware/authMiddleware.js';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
+import multer from 'multer';
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 dotenv.config(); 
 
@@ -209,34 +212,46 @@ app.get('/modelo-wiki', authMiddleware, (req, res) => {
 });
 
 // Criando artista
-app.post("/api/create-artist", async (req, res) => {
+app.post("/api/artist", upload.fields([
+    { name: "banner", maxCount: 1 },
+    { name: "pictures" }
+]), async (req, res) => {
     try {
-        const { name, biography, date_initial, origin, banner, pictures, genres, callou_phrase } = req.body;
+        const { name, biography, date_initial, origin, callou_phrase } = req.body;
+        const genres = JSON.parse(req.body.genres || "[]");
 
-        if (!name || !biography || !date_initial || !origin || !banner || !pictures || !genres || !callou_phrase) {
-            return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+        const banner = req.files?.banner?.[0];
+        const pictures = req.files?.pictures || [];
+
+        if (!name || !biography || !date_initial || !origin || !banner || pictures.length === 0 || genres.length === 0) {
+            return res.status(400).json({ message: "Todos os campos são obrigatórios." });
         }
 
-        const newUserDocument = {
+        const newArtist = {
             name,
             biography,
             date_initial,
             origin,
-            banner,
-            pictures,
+            banner: banner.buffer.toString("base64"), // ou salvar no disco
+            pictures: pictures.map((pic) => pic.buffer.toString("base64")),
             genres,
             callou_phrase,
         };
 
-        const result = await db.collection('wikis').insertOne(newUserDocument);
+        const result = await db.collection("wikis").insertOne(newArtist);
 
-        res.status(201).json({ message: 'Artista cadastrado com sucesso!', userId: result.insertedId.toString(), name: newUserDocument.name });
+        res.status(201).json({
+            message: "Artista cadastrado com sucesso!",
+            userId: result.insertedId.toString(),
+        });
 
     } catch (error) {
-        console.error('Erro ao registrar artista:', error);
-        res.status(500).json({ message: 'Erro ao cadastrar o usuário.', error: error.message }); // Adicionando a mensagem do erro original
+        console.error("Erro ao registrar artista:", error);
+        res.status(500).json({ message: "Erro ao cadastrar o artista.", error: error.message });
     }
 });
+
+
 
 // Serve os arquivos estáticos (como o bundle do React)
 app.use(express.static(path.join(rootDir, "front-end/dist")));
