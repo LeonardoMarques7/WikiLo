@@ -19,6 +19,14 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerArtist } from "../../api/api";
 import image__album__preview from "../../assets/album__preview.png";
+import image_foto from "../../assets/album__preview.png";
+import image_foto2 from "../../assets/album__preview.png";
+import image_foto3 from "../../assets/album__preview.png";
+import image_foto4 from "../../assets/album__preview.png";
+import image_foto5 from "../../assets/album__preview.png";
+import image_foto6 from "../../assets/album__preview.png";
+import image_foto7 from "../../assets/album__preview.png";
+import image_foto8 from "../../assets/album__preview.png";
 import { faCpanel } from "@fortawesome/free-brands-svg-icons";
 // import { artistCreate } from "../api/api"; // Importe a função de registro
 
@@ -166,6 +174,7 @@ const LayoutFormArtista = ({ Layout }) => {
 	const watchedDateInitial = watch("date_initial");
 	const watchedBanner = watch("banner");
 	const watchedPictures = watch("pictures");
+	const watchedAlbuns = watch("");
 
 	const placeholderBio =
 		"Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio delectus dolore molestias laudantium maxime nemo nobis quaerat fugiat. Praesentium cumque consequatur voluptatem, quia debitis velit ad ut molestiae id nam. Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio delectus dolore molestias laudantium maxime nemo nobis quaerat fugiat. Praesentium cumque consequatur voluptatem, quia debitis velit ad ut molestiae id nam Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio delectus dolore molestias laudantium maxime nemo nobis quaerat fugiat. Praesentium cumque consequatur voluptatem, quia debitis velit ad ut molestiae id nam";
@@ -400,47 +409,29 @@ const LayoutFormArtista = ({ Layout }) => {
 						className="max-w-[1400px] albuns__container-pm flex flex-col gap-2"
 						id="Home"
 					>
-						<h2 className="title__container--album font-extrabold text-2xl">
-							Álbuns
+						<h2 className="title__container--album font-extrabold text-2xl ">
+							Álbuns{" "}
+							<code className="text-[20px]">
+								(Você terá mais informações na próxima página)
+							</code>
 						</h2>
-						<ul className="albuns__container grid grid-cols-2 lg:grid-cols-4 gap-5 justify-between">
-							<li
-								className="card__album rounded-2xl"
-								style={{ backgroundImage: `url(${image__album__preview})` }}
-							>
-								<span className="texts__card">
-									<h3 className="card-album--title font-bold">Nome do álbum</h3>
-									<h3 className="card-album--texts">Ano</h3>
-								</span>
-							</li>
-							<li
-								className="card__album rounded-2xl"
-								style={{ backgroundImage: `url(${image__album__preview})` }}
-							>
-								<span className="texts__card">
-									<h3 className="card-album--title font-bold">Nome do álbum</h3>
-									<h3 className="card-album--texts">Ano</h3>
-								</span>
-							</li>
-							<li
-								className="card__album rounded-2xl"
-								style={{ backgroundImage: `url(${image__album__preview})` }}
-							>
-								<span className="texts__card">
-									<h3 className="card-album--title font-bold">Nome do álbum</h3>
-									<h3 className="card-album--texts">Ano</h3>
-								</span>
-							</li>
-							<li
-								className="card__album rounded-2xl"
-								style={{ backgroundImage: `url(${image__album__preview})` }}
-							>
-								<span className="texts__card">
-									<h3 className="card-album--title font-bold">Nome do álbum</h3>
-									<h3 className="card-album--texts">Ano</h3>
-								</span>
-							</li>
-						</ul>
+						<span className="blur-md h-full">
+							<ul className="albuns__container grid grid-cols-2 lg:grid-cols-4 gap-5 justify-between flex-wrap w-full">
+								{Array.from({ length: 4 }).map((_, index) => (
+									<li
+										key={`placeholder-${index}`}
+										className="card__album rounded-2xl bg-gray-300 flex items-center justify-center"
+									>
+										<span className="texts__card text-center">
+											<h3 className="card-album--title font-bold text-gray-500">
+												Álbum
+											</h3>
+											<h3 className="card-album--texts text-gray-400">Ano</h3>
+										</span>
+									</li>
+								))}
+							</ul>
+						</span>
 					</div>
 					<section className="fotos__container mt-10">
 						<div className="max-w-[1400px] m-auto justify-center flex flex-col gap-5 container--fotos">
@@ -508,8 +499,8 @@ const LayoutFormArtista = ({ Layout }) => {
 							</div>
 						</div>
 					</section>
-					<footer className="footer__container flex flex-col">
-						<div className="footer__section-links flex">
+					<footer className="footer__container flex flex-col py-5">
+						<div className="footer__section-links flex justify-around">
 							<div className="footer__card flex flex-col max-w-[700px]">
 								<h2 className="footer__title font-bold uppercase mb-5">
 									{watchedName || "Nome do Artista"} Wiki
@@ -518,7 +509,7 @@ const LayoutFormArtista = ({ Layout }) => {
 							</div>
 							<div className="footer__card mx-10 w-[300px] ">
 								<h2 className="footer__title font-bold">Links Úteis</h2>
-								<ul className="footer__card--links flex flex-col gap-2 my-5">
+								<ul className="footer__card--links flex gap-2 my-5">
 									<li className="footer__item text-gray-600">
 										<a href="#" className="">
 											Álbuns
@@ -532,31 +523,6 @@ const LayoutFormArtista = ({ Layout }) => {
 									<li className="footer__item text-gray-600">
 										<a href="#" className="">
 											Biografia
-										</a>
-									</li>
-								</ul>
-							</div>
-							<div className="footer__card flex-1/2">
-								<h2 className="footer__title font-bold">Redes Socias</h2>
-								<ul className="footer__card--links flex flex-col gap-2 my-5">
-									<li className="footer__item text-gray-600">
-										<a href="#" className="">
-											Instagram
-										</a>
-									</li>
-									<li className="footer__item text-gray-600">
-										<a href="#" className="">
-											Twitter
-										</a>
-									</li>
-									<li className="footer__item text-gray-600">
-										<a href="#" className="">
-											YouTube
-										</a>
-									</li>
-									<li className="footer__item text-gray-600">
-										<a href="#" className="">
-											Spotify
 										</a>
 									</li>
 								</ul>
