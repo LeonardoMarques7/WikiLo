@@ -4,7 +4,7 @@ import Home from "./components/Home";
 import Explore from "./components/Explore";
 import Footer from "./components/Footer";
 import ModeloWiki from "./components/ModeloWiki";
-import LayoutFormArtista from "./components/Forms/LayoutFormArtista";
+import LayoutFormPreview from "./components/Forms/LayoutFormPreview";
 import LayoutFormAlbuns from "./components/Forms/LayoutFormAlbuns";
 import Header from "./components/Header";
 import FormLogin from "./auth/FormLogin";
@@ -23,21 +23,6 @@ const Layout = () => {
 const LayoutWiki = () => {
 	return (
 		<>
-			{/* Video como fundo */}
-			<video
-				className="fixed top-0 left-0 w-full h-full object-cover -z-10 opacity-10 brightness-200"
-				autoPlay
-				muted
-				loop
-				playsInline
-			>
-				<source
-					src="https://videocdn.cdnpk.net/videos/1e448378-bb64-462b-8bee-413d93f9e38d/horizontal/previews/clear/large.mp4?token=exp=1745643602~hmac=f55cbe623d93134071a9720ade5092ee1cc3ae72e13e08c157ec00314224100b"
-					type="video/mp4"
-				/>
-				Seu navegador não suporta vídeos HTML5.
-			</video>
-
 			{/* Conteúdo */}
 			<Header title="Agora vamos criar?" description="" tela="on" />
 			<Outlet />
@@ -87,11 +72,11 @@ function App() {
 						<Route element={<LayoutWiki />}>
 							<Route
 								path="/modelo-um-wiki"
-								element={<LayoutFormArtista Layout="1" />}
+								element={<LayoutFormPreview Layout="1" />}
 							/>
 							<Route
 								path="/modelo-dois-wiki"
-								element={<LayoutFormArtista Layout="2" />}
+								element={<LayoutFormPreview Layout="2" />}
 							/>
 						</Route>
 						<Route element={<LayoutWikiAlbum />}>
