@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Select from "react-select";
 import "./LayoutFormArtistOne.css";
@@ -14,6 +14,7 @@ import {
 	faStar,
 	faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
+import ScrollReveal from "scrollreveal";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -71,6 +72,10 @@ const LayoutFormPreview = ({ Layout }) => {
 	} = useForm({
 		resolver: zodResolver(createArtistFormSchema),
 	});
+
+	useEffect(() => {
+		ScrollReveal().reveal(".widget", { interval: 50, duration: 2000 });
+	}, []);
 
 	const anoAtual = new Date().getFullYear();
 	const anos = Array.from({ length: 100 }, (_, i) => {
@@ -442,29 +447,24 @@ const LayoutFormPreview = ({ Layout }) => {
 			{step === "album" && albumTracks.length > 0 && (
 				<section className="preview mr-10 flex flex-col w-full">
 					<h2 className="text-2xl font-bold text-pink-500">Pré-visualização</h2>
-					<ul className="flex-col gap-4 flex-wrap grid grid-cols-3 h-full overflow-auto p-5 rounded-md">
+					<ul className="flex-col gap-4 flex-wrap grid grid-cols-3 h-full overflow-auto p-5 rounded-md mt-2 border-4 border-pink-300 shadow-2xl shadow-pink-500 widget">
 						{albumTracks.map((track, index) => (
-							<li key={index} className="flex items-center gap-4 text-sm">
+							<li
+								key={index}
+								className={`flex items-center gap-4 widget`}
+								style={{
+									animationDelay: `${index * 0.5}s`, // atraso crescente pra efeito cascata
+								}}
+							>
 								<img
 									src={track.image}
 									alt={track.name}
 									width={40}
 									height={40}
-									className="rounded-full"
+									className="rounded-md"
 								/>
 								<div className="flex flex-1 justify-between gap-2">
 									<p className="font-bold flex-1 text-xs">{track.name}</p>
-									<p className="text-sm text-gray-600">
-										{formatDuration(track.duration_ms)}
-									</p>
-									<a
-										href={track.link}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="text-green-500 text-sm"
-									>
-										<FontAwesomeIcon icon={faSpotify} /> Ouvir agora
-									</a>
 								</div>
 							</li>
 						))}
@@ -477,6 +477,7 @@ const LayoutFormPreview = ({ Layout }) => {
 
 LayoutFormPreview.propTypes = {
 	Layout: PropTypes.string.isRequerid,
+	ErrorBoundary: PropTypes.string.isRequerid,
 };
 
 export default LayoutFormPreview;
