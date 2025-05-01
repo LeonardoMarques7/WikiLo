@@ -9,7 +9,9 @@ import LayoutFormAlbuns from "./components/Forms/LayoutFormAlbuns";
 import Header from "./components/Header";
 import FormLogin from "./auth/FormLogin";
 import FormRegister from "./auth/FormRegister";
-import PrivateRoute from "./auth/PrivateRoute"; // Importe o PrivateRoute
+import PrivateRoute from "./auth/PrivateRoute";
+import ErrorBoundary from "./components/ErrorBoundary";
+import PropTypes from "prop-types";
 
 const Layout = () => {
 	return (
@@ -72,11 +74,19 @@ function App() {
 						<Route element={<LayoutWiki />}>
 							<Route
 								path="/modelo-um-wiki"
-								element={<LayoutFormPreview Layout="1" />}
+								element={
+									<ErrorBoundary>
+										<LayoutFormPreview Layout="1" />
+									</ErrorBoundary>
+								}
 							/>
 							<Route
 								path="/modelo-dois-wiki"
-								element={<LayoutFormPreview Layout="2" />}
+								element={
+									<ErrorBoundary>
+										<LayoutFormPreview Layout="2" />
+									</ErrorBoundary>
+								}
 							/>
 						</Route>
 						<Route element={<LayoutWikiAlbum />}>
@@ -91,5 +101,9 @@ function App() {
 		</>
 	);
 }
+
+ErrorBoundary.propTypes = {
+	ErrorBoundary: PropTypes.string.isRequerid,
+};
 
 export default App;

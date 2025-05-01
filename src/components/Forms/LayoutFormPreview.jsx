@@ -13,6 +13,7 @@ import {
 	faLocationDot,
 	faStar,
 	faPaperPlane,
+	faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 import ScrollReveal from "scrollreveal";
 import { Link } from "react-router-dom";
@@ -29,8 +30,9 @@ import image_foto5 from "../../assets/album__preview.png";
 import image_foto6 from "../../assets/album__preview.png";
 import image_foto7 from "../../assets/album__preview.png";
 import image_foto8 from "../../assets/album__preview.png";
+import image__artist from "../../assets/icon__artist.png";
 import { faCpanel, faSpotify } from "@fortawesome/free-brands-svg-icons";
-// import { artistCreate } from "../api/api"; // Importe a função de registro
+import ErrorBoundary from "../ErrorBoundary";
 
 const generosMusicais = [
 	{ value: "rock", label: "Rock" },
@@ -55,6 +57,7 @@ const createArtistFormSchema = z.object({
 
 const LayoutFormPreview = ({ Layout }) => {
 	const [savedArtistName, setSavedArtistName] = useState("");
+	const [imagemDoArtista, setImagemDoArtista] = useState("");
 	const [anoInicio, setAnoInicio] = useState(null);
 	const [albumTracks, setAlbumTracks] = useState([]);
 	const [step, setStep] = useState("artist");
@@ -83,12 +86,23 @@ const LayoutFormPreview = ({ Layout }) => {
 		return { value: year, label: year.toString() };
 	});
 
-	const handleNextStep = () => {
-		console.log("handleNextStep chamado. Step atual:", step); // Debug 1
+	const handleNextStep = async () => {
+		console.log("handleNextStep chamado. Step atual:", step);
 		if (step === "artist") {
-			setSavedArtistName(watch("name"));
+			const artistName = watch("name");
+			setSavedArtistName(artistName);
 			setStep("album");
-			console.log("Nome do artista salvo:", watch("name")); // Debug 2
+			console.log("Nome do artista salvo:", artistName);
+
+			try {
+				const token = await getSpotifyToken();
+				if (token) {
+					await searchArtist(artistName, token); // Chama searchArtist para buscar a imagem
+				}
+			} catch (error) {
+				console.error("Erro ao buscar imagem do artista:", error);
+				// Trate o erro aqui (exiba uma mensagem, etc.)
+			}
 		}
 	};
 
@@ -241,6 +255,13 @@ const LayoutFormPreview = ({ Layout }) => {
 		const exactMatch = data.artists.items.find(
 			(artist) => artist.name.toLowerCase() === artistName.toLowerCase()
 		);
+
+		const imageUrl =
+			exactMatch?.images?.[0]?.url || data.artists.items[0]?.images?.[0]?.url;
+
+		// Use setImagemDoArtista para atualizar o estado
+		setImagemDoArtista(imageUrl || "");
+
 		return exactMatch?.id || data.artists.items[0]?.id;
 	};
 
@@ -384,6 +405,22 @@ const LayoutFormPreview = ({ Layout }) => {
 
 				{step === "album" && (
 					<div className="flex flex-col gap-5">
+						{imagemDoArtista ? (
+							<figure className="w-[150px] text-sm flex flex-col">
+								<img
+									src={imagemDoArtista}
+									className="w-full rounded-2xl object-cover h-[150px]"
+									alt={savedArtistName}
+								/>
+								<caption className="text-nowrap">Foto do Artista</caption>
+							</figure>
+						) : (
+							<img
+								src={image__artist}
+								className="w-[150px] rounded-2xl object-cover h-[150px]"
+								alt={savedArtistName}
+							/>
+						)}
 						<h2 className="text-gray-500">
 							Forneça somente dados sobre os álbuns; se não houver, pode pular.
 						</h2>
@@ -397,7 +434,6 @@ const LayoutFormPreview = ({ Layout }) => {
 										type="text"
 										id="albumName"
 										{...register("albumName")}
-										placeholder="Boys and Girls"
 										className={`border-1 ${
 											errors.albumName ? "border-red-500" : "border-pink-500"
 										} h-[50px] focus:border-pink-600 px-4 flex-1 outline-0 rounded-br-none rounded-tr-none rounded-md bg-white`}
@@ -406,16 +442,13 @@ const LayoutFormPreview = ({ Layout }) => {
 										type="submit"
 										className="bg-pink-500 text-2xl px-4 rounded-bl-none rounded-tl-none rounded-md h-[50px] hover:bg-pink-600 duration-300 ease-in-out cursor-pointer font-bold text-center text-white"
 									>
-										<FontAwesomeIcon
-											icon={faPaperPlane}
-											className="rotate-[25deg]"
-										/>
+										<FontAwesomeIcon icon={faArrowRight} />
 									</button>
 								</div>
 								<button
 									type="button"
 									onClick={getAllAlbums}
-									className="bg-pink-500 rounded-md h-[50px] px-4  duration-300 ease-in-out cursor-pointer font-bold text-center text-white"
+									className="bg-pink-100 rounded-md h-[50px] px-4 duration-300 ease-in-out cursor-pointer font-bold text-center text-pink-700 hover:bg-pink-300 hover:text-pink-500"
 								>
 									Todos
 								</button>
@@ -447,11 +480,11 @@ const LayoutFormPreview = ({ Layout }) => {
 			{step === "album" && albumTracks.length > 0 && (
 				<section className="preview mr-10 flex flex-col w-full">
 					<h2 className="text-2xl font-bold text-pink-500">Pré-visualização</h2>
-					<ul className="flex-col gap-4 flex-wrap grid grid-cols-3 h-full overflow-auto p-5 rounded-md mt-2 border-4 border-pink-300 shadow-2xl shadow-pink-500 widget">
+					<ul className="flex-col gap-4 flex-wrap grid grid-cols-3 h-full overflow-auto rounded-md mt-2 widget container__musics pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-pink-300">
 						{albumTracks.map((track, index) => (
 							<li
 								key={index}
-								className={`flex items-center gap-4 widget`}
+								className={`flex items-center gap-2 rounded-full border-1 border-pink-500 p-2 song-item`}
 								style={{
 									animationDelay: `${index * 0.5}s`, // atraso crescente pra efeito cascata
 								}}
@@ -461,10 +494,15 @@ const LayoutFormPreview = ({ Layout }) => {
 									alt={track.name}
 									width={40}
 									height={40}
-									className="rounded-md"
+									className="rounded-full"
 								/>
-								<div className="flex flex-1 justify-between gap-2">
-									<p className="font-bold flex-1 text-xs">{track.name}</p>
+								<div className="flex flex-1 justify-between  items-center">
+									<p className="font-bold flex-1 text-xs name__music">
+										{track.name}
+									</p>
+									<strong className="text-[12px]">
+										{formatDuration(track.duration_ms)}
+									</strong>
 								</div>
 							</li>
 						))}
