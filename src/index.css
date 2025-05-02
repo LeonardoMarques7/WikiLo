@@ -28,3 +28,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
 }
+
+.background__form {
+    background-image: url(./assets/background__primary.png);
+}

@@ -5,7 +5,7 @@ import "./FooterStyles.css";
 
 const Footer = () => {
 	return (
-		<footer className="w-full h-[300px] bg-pink-700 mt-10 flex justify-between items-center lg:justify-evenly">
+		<footer className="w-full h-[300px] bg-pink-700 flex justify-between items-center lg:justify-evenly">
 			<div className="container__links font-bold flex flex-col gap-5 text-[20px] text-pink-400">
 				<h3>Links Úteis</h3>
 				<ul className="footer__title text-white flex flex-col gap-2">

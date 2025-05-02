@@ -5,7 +5,7 @@ import logo_wikilo from "../assets/logo__1024x1024_transparent.png";
 const Header = ({ title, description, tela }) => {
 	return (
 		<nav
-			className={`flex items-center justify-between px-10 h-[150px] ${
+			className={`flex items-center justify-between px-10 h-[150px] bg-white ${
 				tela && "max-w-[1400px] m-auto"
 			}`}
 		>

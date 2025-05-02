@@ -11,14 +11,15 @@ import FormLogin from "./auth/FormLogin";
 import FormRegister from "./auth/FormRegister";
 import PrivateRoute from "./auth/PrivateRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
+import image__background from "./assets/background__primary.png";
 import PropTypes from "prop-types";
 
 const Layout = () => {
 	return (
-		<>
+		<div className="background__form">
 			<Outlet />
 			<Footer />
-		</>
+		</div>
 	);
 };
 
@@ -70,7 +71,6 @@ function App() {
 					/>
 					<Route element={<Layout />}>
 						<Route path="/explorar" element={<Explore />} />
-						{/* Remova a rota duplicada de /modelo-wiki aqui */}
 						<Route element={<LayoutWiki />}>
 							<Route
 								path="/modelo-um-wiki"

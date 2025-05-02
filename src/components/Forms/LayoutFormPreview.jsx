@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Select from "react-select";
 import "./LayoutFormArtistOne.css";
+import {
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Button,
+} from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faUser,
@@ -32,7 +39,7 @@ import image_foto7 from "../../assets/album__preview.png";
 import image_foto8 from "../../assets/album__preview.png";
 import image__artist from "../../assets/icon__artist.png";
 import { faCpanel, faSpotify } from "@fortawesome/free-brands-svg-icons";
-import ErrorBoundary from "../ErrorBoundary";
+import PoupDialog from "../PoupDialog";
 
 const generosMusicais = [
 	{ value: "rock", label: "Rock" },
@@ -61,6 +68,7 @@ const LayoutFormPreview = ({ Layout }) => {
 	const [anoInicio, setAnoInicio] = useState(null);
 	const [albumTracks, setAlbumTracks] = useState([]);
 	const [step, setStep] = useState("artist");
+	const [isAlbumNotFoundOpen, setIsAlbumNotFoundOpen] = useState(false);
 	const [generosSelecionados, setGenerosSelecionados] = useState([]);
 	const [registrationError, setRegistrationError] = useState("");
 	const [registrationSuccess, setRegistrationSuccess] = useState(false);
@@ -288,7 +296,7 @@ const LayoutFormPreview = ({ Layout }) => {
 
 			const albums = await getArtistAlbums(artistId, token, albumName);
 			if (!albums || albums.length === 0) {
-				alert("Álbum não encontrado!");
+				setIsAlbumNotFoundOpen(true);
 				return;
 			}
 
@@ -298,7 +306,7 @@ const LayoutFormPreview = ({ Layout }) => {
 			});
 
 			if (!album) {
-				alert("Álbum não encontrado!");
+				setIsAlbumNotFoundOpen(true);
 				return;
 			}
 
@@ -346,7 +354,7 @@ const LayoutFormPreview = ({ Layout }) => {
 				return;
 			}
 
-			// Transforma os álbuns em faixas (opcionalmente)
+			// Busca as faixas de cada álbum
 			const albumsWithTracks = await Promise.all(
 				data.items.map(async (album) => {
 					const tracksRes = await fetch(
@@ -358,25 +366,39 @@ const LayoutFormPreview = ({ Layout }) => {
 						}
 					);
 					const tracksData = await tracksRes.json();
-					return tracksData.items.map((track) => ({
-						name: track.name,
-						duration_ms: track.duration_ms,
-						image: album.images[0]?.url,
-						link: track.external_urls.spotify,
-					}));
+					return {
+						id: album.id,
+						name: album.name,
+						release_date: album.release_date,
+						album_name: album.name,
+						images: album.images,
+						tracks: tracksData.items.map((track) => ({
+							name: track.name,
+							duration_ms: track.duration_ms,
+							album_name: album.name,
+							link: track.external_urls.spotify,
+						})),
+					};
 				})
 			);
 
-			// Achata todos os arrays de tracks em um só
-			const allTracks = albumsWithTracks.flat();
-			setAlbumTracks(allTracks);
+			// Atualiza o estado com a lista de álbuns e suas respectivas faixas
+			setAlbumTracks(albumsWithTracks);
 		} catch (error) {
-			console.error("Erro ao buscar todos os álbuns:", error);
+			console.error("Erro ao buscar álbuns com faixas:", error);
 		}
 	};
 
+	const handleCloseAlbumNotFound = () => {
+		setIsAlbumNotFoundOpen(false);
+	};
+
 	return (
-		<main className="flex max-w-[1400px] m-auto h-screen">
+		<main className="flex max-w-[1400px] m-auto h-screen bg-white pb-20">
+			<PoupDialog
+				isOpen={isAlbumNotFoundOpen}
+				onClose={handleCloseAlbumNotFound}
+			/>
 			<form
 				onSubmit={handleSubmit(createArtist)}
 				className="artist__for max-w-[1400px] w-[500px] mx-10 flex flex-col gap-5"
@@ -412,7 +434,9 @@ const LayoutFormPreview = ({ Layout }) => {
 									className="w-full rounded-2xl object-cover h-[150px]"
 									alt={savedArtistName}
 								/>
-								<caption className="text-nowrap">Foto do Artista</caption>
+								<figcaption className="text-nowrap text-center">
+									Foto do Artista
+								</figcaption>
 							</figure>
 						) : (
 							<img
@@ -479,30 +503,33 @@ const LayoutFormPreview = ({ Layout }) => {
 			</form>
 			{step === "album" && albumTracks.length > 0 && (
 				<section className="preview mr-10 flex flex-col w-full">
-					<h2 className="text-2xl font-bold text-pink-500">Pré-visualização</h2>
-					<ul className="flex-col gap-4 flex-wrap grid grid-cols-3 h-full overflow-auto rounded-md mt-2 widget container__musics pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-pink-300">
-						{albumTracks.map((track, index) => (
+					<h2 className="text-2xl font-bold text-pink-500">
+						Álbuns de {`"${savedArtistName}"`}
+					</h2>
+					<ul className="flex-col gap-4 flex-wrap grid grid-cols-3 h-full overflow-auto rounded-md mt-2 widget container__albuns pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-pink-300">
+						{albumTracks.map((album) => (
 							<li
-								key={index}
-								className={`flex items-center gap-2 rounded-full border-1 border-pink-500 p-2 song-item`}
-								style={{
-									animationDelay: `${index * 0.5}s`, // atraso crescente pra efeito cascata
-								}}
+								key={album.id}
+								className={`flex flex-col gap-2 rounded-md border-1 border-pink-500 p-4 album-item`}
 							>
-								<img
-									src={track.image}
-									alt={track.name}
-									width={40}
-									height={40}
-									className="rounded-full"
-								/>
-								<div className="flex flex-1 justify-between  items-center">
-									<p className="font-bold flex-1 text-xs name__music">
-										{track.name}
+								{album.images?.[0]?.url ? (
+									<img
+										src={album.images?.[0]?.url}
+										alt={album.name}
+										className="rounded-md object-cover"
+									/>
+								) : (
+									<img
+										src={image__artist}
+										alt={album.name}
+										className="rounded-md object-cover"
+									/>
+								)}
+								<div className="flex flex-col">
+									<p className="font-bold text-sm name__album">{album.name}</p>
+									<p className="text-[10px] text-gray-600">
+										{album.album_name ? album.album_name : <></>}
 									</p>
-									<strong className="text-[12px]">
-										{formatDuration(track.duration_ms)}
-									</strong>
 								</div>
 							</li>
 						))}
@@ -515,7 +542,6 @@ const LayoutFormPreview = ({ Layout }) => {
 
 LayoutFormPreview.propTypes = {
 	Layout: PropTypes.string.isRequerid,
-	ErrorBoundary: PropTypes.string.isRequerid,
 };
 
 export default LayoutFormPreview;
