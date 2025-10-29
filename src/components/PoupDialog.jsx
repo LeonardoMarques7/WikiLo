@@ -47,9 +47,4 @@ const PoupDialog = ({ isOpen, onClose }) => {
 	);
 };
 
-PoupDialog.propTypes = {
-	isOpen: PropTypes.string.isRequerid,
-	onClose: PropTypes.string.isRequerid,
-};
-
 export default PoupDialog;

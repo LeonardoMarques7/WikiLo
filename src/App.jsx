@@ -13,6 +13,7 @@ import PrivateRoute from "./auth/PrivateRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
 import image__background from "./assets/background__primary.png";
 import PropTypes from "prop-types";
+import Teste from "./Teste";
 
 const Layout = () => {
 	return (
@@ -97,6 +98,7 @@ function App() {
 						</Route>
 					</Route>
 				</Route>
+				<Route path="/teste" element={<Teste />} />
 			</Routes>
 		</>
 	);
